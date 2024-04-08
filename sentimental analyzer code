@@ -1,0 +1,69 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+
+# Load your dataset (replace with your actual data)
+# Assume 'tweets' is a DataFrame with columns 'text' and 'sentiment'
+# 'sentiment' should be binary (0 for negative, 1 for positive)
+
+# Data preprocessing
+def preprocess_text(text):
+    # Implement your text cleaning logic here
+    # Remove special characters, URLs, etc.
+    return text
+
+tweets['cleaned_text'] = tweets['text'].apply(preprocess_text)
+
+# Feature extraction (TF-IDF)
+tfidf_vectorizer = TfidfVectorizer(max_features=1000)
+X = tfidf_vectorizer.fit_transform(tweets['cleaned_text'])
+y = tweets['sentiment']
+
+# Split data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train models
+nb_model = MultinomialNB()
+svm_model = SVC(kernel='linear')
+lr_model = LogisticRegression()
+
+nb_model.fit(X_train, y_train)
+svm_model.fit(X_train, y_train)
+lr_model.fit(X_train, y_train)
+
+# Evaluate models
+def evaluate_model(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    return accuracy, precision, recall
+
+nb_accuracy, nb_precision, nb_recall = evaluate_model(nb_model, X_test, y_test)
+svm_accuracy, svm_precision, svm_recall = evaluate_model(svm_model, X_test, y_test)
+lr_accuracy, lr_precision, lr_recall = evaluate_model(lr_model, X_test, y_test)
+
+print("Naïve Bayes:")
+print(f"Accuracy: {nb_accuracy:.2f}, Precision: {nb_precision:.2f}, Recall: {nb_recall:.2f}")
+
+# Repeat for SVM and Logistic Regression
+
+# Real-time prediction
+def predict_sentiment(new_tweet):
+    # Preprocess new_tweet
+    cleaned_new_tweet = preprocess_text(new_tweet)
+    # Convert to TF-IDF features
+    new_tweet_features = tfidf_vectorizer.transform([cleaned_new_tweet])
+    # Predict sentiment
+    sentiment = nb_model.predict(new_tweet_features)[0]
+    return "Positive" if sentiment == 1 else "Negative"
+
+# Example usage:
+new_tweet = "Amazon's customer service is amazing!"
+predicted_sentiment = predict_sentiment(new_tweet)
+print(f"Predicted sentiment: {predicted_sentiment}")
